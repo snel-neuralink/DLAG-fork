@@ -1,4 +1,4 @@
-function [estParams,seq,LL,iterTime,D,gams_across,gams_within,nus_across,nus_within,err_status,msg] ...
+function [estParams,seq,LL,iterTime,D,gams_across,gams_within,nus_across,nus_within,err_status,msg,r2_grp1,r2_grp2] ...
           = em_dlag(currentParams,seq,varargin)
 %
 % [estParams,seq,LL,iterTime,D,gams_across,gams_within,nus_across,nus_within,err_status,msg] ...
@@ -184,6 +184,8 @@ currentParams.DelayMatrix(currentParams.DelayMatrix <= -maxDelay) = rand;
 if isempty(trackedParams)
     % Start convergence tracking fresh
     LL = [];                 % Log-likelihood at each iteration
+     r2_grp1 = [];
+    r2_grp2 = [];
     LLi = -inf;              % Initial log-likelihood
     iterTime = [];           % Time it takes to complete each iteration
     deltaD_i = inf;          % Initial change in delays between iterations
@@ -262,6 +264,10 @@ for i =  startIter:maxIters
                                           'getLL', getLL);   
                                     
     LL = [LL LLi];
+    % compute R2
+    [r2i] = calculate_r2(seq,currentParams);
+    r2_grp1 = [r2_grp1 r2i(1)];
+    r2_grp2 = [r2_grp2 r2i(2)];
     
     %% === M STEP ===
     if learnObs
@@ -390,6 +396,7 @@ for i =  startIter:maxIters
     if verbose && ~parallelize
         if getLL
             fprintf('       lik %f\r', LLi);
+            fprintf('       r2 %f\r,', r2i);
         else
             fprintf('\r');
         end

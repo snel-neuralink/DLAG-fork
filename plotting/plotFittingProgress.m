@@ -62,6 +62,7 @@ function plotFittingProgress(res, varargin)
 freqLL = 1;
 freqParam = 1;
 units = '';
+saveDir = '';
 assignopts(who,varargin);
 
 % Format units for axis labels
@@ -98,6 +99,10 @@ else
 end
 xlabel('# Iterations');
 ylabel('LL');
+if ~isempty(saveDir)
+    saveDir = fullfile(saveDir, 'LL_curve.png');
+    saveas(gcf, saveDir);
+end
 
 % Cumulative fitting time
 plotIdx = plotIdx + 1;
